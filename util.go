@@ -54,7 +54,7 @@ func SliceConvert[T any, V any](ts []T, converter Converter[T, V]) (vs []V) {
 MergeOrdered concatinates and sorts input1 and input2 and returns it.
 Parameters input1 and input2 must be sorted slices.
 */
-func MergeOrdered[C cmp.Ordered, IN1, IN2, OUT ~[]C](
+func MergeOrdered[C cmp.Ordered, IN1, IN2, OUT []C](
 	input1 IN1,
 	input2 IN2,
 ) (out OUT) {
@@ -65,7 +65,7 @@ func MergeOrdered[C cmp.Ordered, IN1, IN2, OUT ~[]C](
 			out[i+j] = input1[i]
 			i++
 		} else {
-			out[i+j] = (input2[j])
+			out[i+j] = input2[j]
 			j++
 		}
 	}
@@ -95,7 +95,7 @@ func MergeWithFunc[IN1, IN2, OUT any](
 	out = make([]OUT, len(input1)+len(input2))
 	var i, j int = 0, 0
 	for i < len(input1) && j < len(input2) {
-		if cmp(input1[j], input2[i]) < 0 {
+		if cmp(input1[i], input2[j]) < 0 {
 			out[i+j] = conv1(input1[i])
 			i++
 		} else {
@@ -121,27 +121,4 @@ and constructing and returning a merged slice.
 */
 func MergeWithFuncSimple[T any](in1 []T, in2 []T, cmp Comparer[T, T]) []T {
 	return MergeWithFunc(in1, in2, cmp, IdentityFunc[T](), IdentityFunc[T]())
-}
-
-type Converter[T any, V any] func(T) V
-type Comparer[T, V any] func(T, V) int
-
-/*
-IdentityFunc returns identity function of type T
-*/
-func IdentityFunc[T any]() func(T) T {
-	return func(t T) T {
-		return t
-	}
-}
-
-/*
-SliceConvert converts slices with given converter function.
-*/
-func SliceConvert[T any, V any](ts []T, converter Converter[T, V]) (vs []V) {
-	vs = make([]V, len(ts))
-	for i := range len(ts) {
-		vs[i] = converter(ts[i])
-	}
-	return
 }
