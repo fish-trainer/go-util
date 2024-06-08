@@ -27,6 +27,29 @@ func UnmarshalReturn[T any](data []byte) (*T, error) {
 	return &t, nil
 }
 
+type Converter[T any, V any] func(T) V
+type Comparer[T, V any] func(T, V) int
+
+/*
+IdentityFunc returns identity function of type T
+*/
+func IdentityFunc[T any]() func(T) T {
+	return func(t T) T {
+		return t
+	}
+}
+
+/*
+SliceConvert converts slices with given converter function.
+*/
+func SliceConvert[T any, V any](ts []T, converter Converter[T, V]) (vs []V) {
+	vs = make([]V, len(ts))
+	for i := range len(ts) {
+		vs[i] = converter(ts[i])
+	}
+	return
+}
+
 /*
 MergeOrdered concatinates and sorts input1 and input2 and returns it.
 Parameters input1 and input2 must be sorted slices.
